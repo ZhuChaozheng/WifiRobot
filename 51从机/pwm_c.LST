@@ -1,0 +1,270 @@
+C51 COMPILER V8.05a   PWM_C                                                                01/22/2015 19:46:12 PAGE 1   
+
+
+C51 COMPILER V8.05a, COMPILATION OF MODULE PWM_C
+OBJECT MODULE PLACED IN pwm_c.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.exe pwm_c.c DB OE BR
+
+line level    source
+
+   1          #include"pwm_h.h"
+   2          /******************************************************************************
+   3          //! 函数名：void PWM_Init()
+   4          //! 函数功能：PWM初始化
+   5          ******************************************************************************/
+   6          
+   7          void PWM_Init()
+   8          {
+   9   1              unsigned char SFRPAGE_save = SFRPAGE; 
+  10   1      
+  11   1              PWM_Port_Init();
+  12   1      
+  13   1              SFRPAGE = CONFIG_PAGE;             
+  14   1      
+  15   1              
+  16   1              //PCA0CN = 0x00;                      
+  17   1              PCA0MD = 0x08;                      // 采用系统时钟
+  18   1      
+  19   1              PCA0CPM0 = 0x42;                    //8 PWM 模式，比较器功能使能，PWM使能
+  20   1              PCA0CPM1 = 0x42;
+  21   1              PCA0CPM2 = 0x42;
+  22   1              PCA0CPM3 = 0x42;
+  23   1              PCA0CPM4 = 0x42;
+  24   1      //      PCA0CPM5 = 0x42;
+  25   1      
+  26   1      
+  27   1      
+  28   1              PCA0CPH0 = 0xFE;
+  29   1              PCA0CPH1 = 0xFE;
+  30   1              PCA0CPH2 = 0xFE;
+  31   1              PCA0CPH3 = 0xFE;
+  32   1              PCA0CPH4 = 0xFE;
+  33   1              //PCA0CPH5 = 0xFE;
+  34   1      
+  35   1              CR = 1;        //允许PCA计数，定时
+  36   1      
+  37   1              SFRPAGE = SFRPAGE_save; 
+  38   1              
+  39   1              DC_Motor(1,1,0);
+  40   1              DC_Motor(2,1,0);
+  41   1              DC_Motor(3,1,0);
+  42   1              DC_Motor(4,1,0); 
+  43   1              //DC_Motor(5,1,0);             
+  44   1      }
+  45          /******************************************************************************
+  46          //! 函数名：void Oscillator_Init (void)
+  47          //! 函数功能：时钟初始化
+  48          //!----------------------------------------------------------------------------
+  49          //! 电机控制线连接状况：
+  50          //! CPP0 ----- P0.6    CPP1 ----- P0.7    CPP2 ----- P1.0
+  51          //! CPP4 ----- P1.2
+  52          ******************************************************************************/
+  53          void PWM_Port_Init()
+  54          {
+  55   1              unsigned char SFRPAGE_save = SFRPAGE; 
+C51 COMPILER V8.05a   PWM_C                                                                01/22/2015 19:46:12 PAGE 2   
+
+  56   1      
+  57   1              SFRPAGE = CONFIG_PAGE;                                  
+  58   1                                                
+  59   1              
+  60   1              
+  61   1          XBR1   |= 0x45;  //使能交叉开关，CEX0-3连接到管脚
+  62   1      
+  63   1              P0SKIP |= 0x0F;  //Ray注释：与SYN6288串口P0.1和0.2冲突，屏蔽则语音正常播报
+  64   1       
+  65   1      //Ray添加 
+  66   1      //    P0SKIP |= 0x09;  //仅跳过P0.0、P0.3
+  67   1      //Ray添加
+  68   1              P0MDOUT |= 0xC0;   
+  69   1              //P0 &= ~0xC0;             
+  70   1              
+  71   1      
+  72   1              //P1SKIP |= 0x03;
+  73   1              //P1MDOUT |= 0x03;
+  74   1              P1MDOUT |= 0x7F;
+  75   1          //P1 &= ~0x7F;
+  76   1              
+  77   1              P3MDOUT |= 0x60;
+  78   1              //P3 &= ~0x60;
+  79   1      
+  80   1              //XBR0    = 0x00; // 对I2C有影响
+  81   1          
+  82   1              
+  83   1      
+  84   1              SFRPAGE = SFRPAGE_save;            
+  85   1      }
+  86          
+  87          /******************************************************************************
+  88          //! 函数名：void DC_Motor(uc motor_num,uc direction, uc motor_speed)
+  89          //! 函数功能：改变PWM占空比
+  90          ******************************************************************************/
+  91          void 
+  92          DC_Motor(unsigned char motor_num,unsigned char direction, unsigned char motor_speed)
+  93          {
+  94   1              unsigned char SFRPAGE_save = SFRPAGE; 
+  95   1              
+  96   1              //float ucMotorSpeed;
+  97   1      
+  98   1              SFRPAGE = CONFIG_PAGE;
+  99   1      
+ 100   1              //ucMotorSpeed = (float)(motor_speed)/100;
+ 101   1              if(!motor_speed)
+ 102   1              {
+ 103   2                      switch(motor_num)
+ 104   2                      {
+ 105   3                              case 1:
+ 106   3                              
+ 107   3                                      PCA0CPH0 = 255;
+ 108   3      
+ 109   3                                      break;
+ 110   3      
+ 111   3                              case 2:
+ 112   3                      
+ 113   3                                      PCA0CPH1 = 255;
+ 114   3      
+ 115   3                                      break;
+ 116   3      
+ 117   3                              case 3:
+C51 COMPILER V8.05a   PWM_C                                                                01/22/2015 19:46:12 PAGE 3   
+
+ 118   3                              
+ 119   3                                      PCA0CPH2 = 255;
+ 120   3      
+ 121   3                                      break;
+ 122   3      
+ 123   3                              case 4:
+ 124   3                              
+ 125   3                              
+ 126   3                                      PCA0CPH3 = 255;
+ 127   3      
+ 128   3                                      break;
+ 129   3      
+ 130   3                      case 5:         
+ 131   3                              
+ 132   3                                      PCA0CPH4 = 255;
+ 133   3      
+ 134   3                                      break;
+ 135   3      
+ 136   3                              case 6:         
+ 137   3                      
+ 138   3                                      PCA0CPH5 = 255;
+ 139   3      
+ 140   3                                      break;
+ 141   3      
+ 142   3                          default: break;
+ 143   3                      }
+ 144   2              }
+ 145   1      
+ 146   1              else 
+ 147   1              switch(motor_num)
+ 148   1              {
+ 149   2                      case 1:
+ 150   2                              
+ 151   2                              PCA0CPH0 = 255 - (motor_speed+90);
+ 152   2      
+ 153   2                              break;
+ 154   2      
+ 155   2                      case 2:
+ 156   2                      
+ 157   2                              PCA0CPH1 = 255 - (motor_speed+116);
+ 158   2      
+ 159   2                              break;
+ 160   2      
+ 161   2                      case 3:
+ 162   2                              
+ 163   2                              PCA0CPH2 = 255 - (motor_speed+116);
+ 164   2      
+ 165   2                              break;
+ 166   2      
+ 167   2                      case 4:
+ 168   2                              
+ 169   2                              
+ 170   2                              PCA0CPH3 = 255 - (motor_speed+116);
+ 171   2      
+ 172   2                              break;
+ 173   2      
+ 174   2              case 5:         
+ 175   2                              
+ 176   2                              PCA0CPH4 = 255 - (motor_speed+116);
+ 177   2      
+ 178   2                              break;
+ 179   2      
+C51 COMPILER V8.05a   PWM_C                                                                01/22/2015 19:46:12 PAGE 4   
+
+ 180   2                      case 6:         
+ 181   2                      
+ 182   2                              PCA0CPH5 = 255 - (motor_speed+116);
+ 183   2      
+ 184   2                              break;
+ 185   2      
+ 186   2                  default: break;
+ 187   2              }
+ 188   1      
+ 189   1              
+ 190   1              switch(direction)
+ 191   1              {
+ 192   2                      case 0: 
+ 193   2      
+ 194   2                              if(motor_num==1) P1 &= ~0x08; //P1.3 = 0,即DIR0置0
+ 195   2                              if(motor_num==2) P1 &= ~0x10; //P1.4 = 0,即DIR1置0
+ 196   2                              if(motor_num==3) P1 &= ~0x20; //P1.5 = 0,即DIR2置0
+ 197   2                              if(motor_num==4) P1 &= ~0x40; //P1.6 = 0,即DIR3置0
+ 198   2                              if(motor_num==5) P3 &= ~0x40; //P3.6 = 0,即DIR4置0
+ 199   2      
+ 200   2                              
+ 201   2                              
+ 202   2                              break;
+ 203   2                              
+ 204   2                              
+ 205   2                      
+ 206   2                      case 1: 
+ 207   2      
+ 208   2                              if(motor_num==1) PCA0CPH0 = 255;
+ 209   2                              if(motor_num==2) PCA0CPH1 = 255;
+ 210   2                              if(motor_num==3) PCA0CPH2 = 255;
+ 211   2                              if(motor_num==4) PCA0CPH3 = 255;
+ 212   2                              if(motor_num==5) PCA0CPH4 = 255;
+ 213   2                              if(motor_num==6) PCA0CPH5 = 255;
+ 214   2      
+ 215   2                              break;
+ 216   2                              
+ 217   2      
+ 218   2      
+ 219   2                      case 2: 
+ 220   2                      
+ 221   2                              if(motor_num==1) P1 |= 0x08;  //P1.3 = 1,即DIR0置1；
+ 222   2                              if(motor_num==2) P1 |= 0x10;  //P1.4 = 1,即DIR1置1；
+ 223   2                              if(motor_num==3) P1 |= 0x20;  //P1.5 = 1,即DIR2置1；
+ 224   2                              if(motor_num==4) P1 |= 0x40;  //P1.6 = 1,即DIR3置1；
+ 225   2                              if(motor_num==5) P3 |= 0x40;  //P3.6 = 1,即DIR4置1；
+ 226   2      
+ 227   2                              break;
+ 228   2      
+ 229   2                      default: break;
+ 230   2              }
+ 231   1      
+ 232   1              SFRPAGE = SFRPAGE_save;
+ 233   1      }
+ 234          /**********************************************************************************
+ 235          //! 文件结束
+ 236          **********************************************************************************/
+ 237           
+ 238          
+ 239                  
+
+
+C51 COMPILER V8.05a   PWM_C                                                                01/22/2015 19:46:12 PAGE 5   
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    346    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       1
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

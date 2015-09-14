@@ -1,0 +1,474 @@
+
+#include "Sensor_AD.h"
+#include "C8051F360.h"
+#include "LED.h"
+#include "main.h"
+
+//-----------------------------------------------------------------------------
+// Global Constants
+//-----------------------------------------------------------------------------
+
+#define  SYSCLK         24500000       // System clock frequency in Hz
+
+#define  SMB_FREQUENCY  65000          // Target SMBus frequency
+                                       // This example supports between 10kHz
+                                       // and 100kHz
+
+
+#define  READ           0x01           // SMBus READ command
+
+
+
+// Status vector - top 4 bits only
+#define  SMB_SRADD      0x20           // (SR) slave address received
+                                       //    (also could be a lost
+                                       //    arbitration)
+#define  SMB_SRSTO      0x10           // (SR) STOP detected while SR or ST,
+                                       //    or lost arbitration
+#define  SMB_SRDB       0x00           // (SR) data byte received, or
+                                       //    lost arbitration
+#define  SMB_STDB       0x40           // (ST) data byte transmitted
+#define  SMB_STSTO      0x50           // (ST) STOP detected during a
+                                       //    transaction; bus error
+// End status vector definition
+
+#define  NUM_BYTES_WR   7              // Number of bytes to write
+                                       // Slave <- Master
+#define  NUM_BYTES_RD   7             // Number of bytes to read
+                                       // Slave -> Master
+
+
+
+
+
+unsigned char Data[8],Flag,Pre_Data[16];
+
+unsigned char  SLAVE_ADDR  =   0x07<<1;           // Device addresses (7 bits,
+                                       // lsb is a don't care)
+
+unsigned char DATA_READY = 0;                    // Set to '1' by the SMBus ISR
+                                       // when a new data byte has been
+                                       // received.
+
+// 16-bit SFR declarations
+sfr16    TMR3RL   = 0x92;              // Timer3 reload registers
+sfr16    TMR3     = 0x94;              // Timer3 counter registers
+
+
+volatile char rec_flag = 0;
+
+
+
+struct movement_info
+{
+    char car_forward;       
+	char car_back;
+    char car_left;
+    char car_right;
+    char car_stop;
+
+    char steer_left;       
+	char steer_right;
+    char steer_stop;
+};
+
+
+void car_movement_control(struct movement_info *cmd);
+void Delay_ms(unsigned int i);
+void Delay_1ms(void);
+
+/*************************************************************
+//! 函数名：void main (void)
+//! 函数说明：主程序
+*************************************************************/
+void main (void)
+{
+   unsigned char i,max_data_chn; 
+   struct movement_info *car_cmd;
+
+   PCA0MD &= ~0x40;                    
+
+   Oscillator_Init();
+    // ADC_PortInit();                  
+   Timer1_Init();                      
+
+   //Timer3_Init ();                   
+                                       
+
+   SMBus_Init ();
+           
+	PWM_Init();
+		
+	servo_init();	                
+
+  //Watchdog_Init();
+   
+   EA = 1;                             // 开中断
+
+
+
+#if 0
+    //车前进
+//	DC_Motor(1, 0, 60); 
+//	DC_Motor(2, 0, 50);
+//	Delay_ms(1000);
+
+	//车后退
+	DC_Motor(1, 2, 70); 
+	Delay_ms(10);
+	DC_Motor(2, 2, 90);
+	Delay_ms(1000);
+
+	//车右转
+	DC_Motor(1, 2, 40);
+	DC_Motor(2, 0, 50); 
+	Delay_ms(1000);
+
+	//车左转
+	DC_Motor(1, 0, 20);	//右轮大速度
+	DC_Motor(2, 2, 20); 
+	Delay_ms(1000);
+
+	//车停止
+	DC_Motor(1, 1, 0);
+	DC_Motor(2, 1, 0);
+	while (1);
+#endif
+
+  
+	do
+	{	      
+
+	    Flag = 0; 
+
+	//	clrwdt();
+
+		while (!rec_flag) ;
+
+		rec_flag = 0;
+
+		car_cmd = (struct movement_info *)Data;
+
+		car_movement_control(car_cmd);
+		
+
+	}while(1);
+
+}
+
+
+void car_movement_control(struct movement_info *cmd)
+{
+	if (cmd->car_forward == 0x01)
+	{
+		DC_Motor(1, 0, 60);
+		//Delay_ms(30);
+		DC_Motor(2, 0, 50); 
+	}
+	else if (cmd->car_back == 0x01)
+	{
+		DC_Motor(1, 2, 70);
+		Delay_ms(10);
+		DC_Motor(2, 2, 90);
+	}
+	else if (cmd->car_right == 0x01)
+	{
+		DC_Motor(1, 2, 40);
+		DC_Motor(2, 0, 50);  //左轮大速度（此处电机有问题给很大的占空比，转速仍很小）
+	}
+	else if (cmd->car_left == 0x01)
+	{
+		DC_Motor(1, 0, 20);	//右轮大速度
+		DC_Motor(2, 2, 20);
+	}
+	else if (cmd->car_stop == 0x01)
+	{
+		DC_Motor(1, 1, 0);
+		DC_Motor(2, 1, 0);
+	}
+	else
+	{}
+
+	if (cmd->steer_left == 0x01)
+	{
+		servo_turn_left();
+	}
+	else if (cmd->steer_right == 0x01)
+	{
+		servo_turn_right();
+	}
+	else if (cmd->steer_stop == 0x01)
+	{
+		servo_stop();
+	}
+	else
+	{}
+
+}
+
+
+
+/*************************************************************
+//! 函数名：SMBus_Init (void)
+//! 函数说明：SMBus初始化
+*************************************************************/
+void SMBus_Init (void)
+{
+   unsigned char SFRPAGE_save = SFRPAGE; // Save the current SFRPAGE
+
+   SFRPAGE = CONFIG_PAGE;              // Switch to the necessary SFRPAGE
+   
+   P0SKIP &= ~0XFF;
+
+   P0SKIP |= 0X0F;
+   
+//   P0MDOUT &= ~0x30; 
+
+   SMB0CF = 0x1D;                      // Use Timer1 overflows as SMBus clock
+                                       // source;
+               
+   SMB0CF |= 0x80;                     // Enable SMBus
+
+   EIE1 |= 0x01;
+
+   XBR0  |= 0X04;
+	XBR1 = 0x40;       //交叉开关使能
+   SFRPAGE = SFRPAGE_save;             // Restore the SFRPAGE
+}
+
+/*************************************************************
+//! 函数名：Timer1_Init (void)
+//! 函数说明：定时器初始化
+*************************************************************/
+void Timer1_Init (void)
+{
+   unsigned char SFRPAGE_save = SFRPAGE; // Save the current SFRPAGE
+
+   SFRPAGE = CONFIG_PAGE;              // Switch to the necessary SFRPAGE
+
+
+#if ((SYSCLK/SMB_FREQUENCY/3) < 255)
+   #define SCALE 1
+      CKCON |= 0x08;                   // Timer1 clock source = SYSCLK
+#elif ((SYSCLK/SMB_FREQUENCY/4/3) < 255)
+   #define SCALE 4
+      CKCON |= 0x01;
+      CKCON &= ~0x0A;                  // Timer1 clock source = SYSCLK / 4
+#elif ((SYSCLK/SMB_FREQUENCY/12/3) < 255)
+   #define SCALE 8
+      CKCON &= ~0x0B;                  // Timer1 clock source = SYSCLK / 12
+#elif ((SYSCLK/SMB_FREQUENCY/48/3) < 255)
+   #define SCALE 4
+      CKCON |= 0x02;
+      CKCON &= ~0x09;                  // Timer1 clock source = SYSCLK / 48
+#else
+   #error "Error: Timer1 cannot produce the desired SMBus frequency"
+#endif
+
+   TMOD = 0x20;                        // Timer1 in 8-bit auto-reload mode
+
+   // Timer1 configured to overflow at 1/3 the rate defined by SMB_FREQUENCY
+   TH1 = -(SYSCLK/SMB_FREQUENCY/SCALE/3);
+
+   TL1 = TH1;                          // Init Timer1
+
+   TR1 = 1;                            // Timer1 enabled
+
+   SFRPAGE = SFRPAGE_save;             // Restore the SFRPAGE
+}
+
+
+
+
+/*************************************************************
+//! 函数名：SMBus_ISR (void) interrupt 7
+//! 函数说明：中断服务程序
+*************************************************************/
+void SMBus_ISR (void) interrupt 7
+{
+   static unsigned char sent_byte_counter;
+   static unsigned char rec_byte_counter;
+   
+
+
+   if (ARBLOST == 0)
+   {
+      switch (SMB0CN & 0xF0)           // Decode the SMBus status vector
+      {
+         // Slave Receiver: Start+Address received
+         case  SMB_SRADD:
+
+            STA = 0;                   // Clear STA bit
+
+            sent_byte_counter = 1;     // Reinitialize the data counters
+            rec_byte_counter = 0;
+
+            if((SMB0DAT&0xFE) == (SLAVE_ADDR&0xFE)) // Decode address
+            {                          // If the received address matches,
+               ACK = 1;                // ACK the received slave address
+
+			   if((SMB0DAT&0x01) == READ) // If the transfer is a master READ,
+               {
+                 if(Flag == 0)
+				 {
+	                  SMB0DAT = Data[sent_byte_counter-1];
+	                  sent_byte_counter++;
+				 }
+				 if(Flag == 1)
+				 {
+	                  SMB0DAT = Data[sent_byte_counter-1];
+	                  sent_byte_counter++;
+				 }
+               }
+            }
+            else                       // If received slave address does not
+            {                          // match,
+               ACK = 0;                // NACK received address
+            }
+            break;
+
+
+         case  SMB_SRSTO:
+
+            STO = 0;                   // STO must be cleared by software when
+                                       // a STOP is detected as a slave
+            break;
+
+         // Slave Transmitter: Data byte transmitted
+		 case SMB_SRDB:
+			Data[rec_byte_counter++] = SMB0DAT;	//接收命令
+			ACK = 1;
+			if (rec_byte_counter == 8)
+			{
+				rec_byte_counter = 0;
+				rec_flag = 1;
+			}
+
+		 break;
+
+
+         case  SMB_STDB:
+
+            if (ACK == 1)              // If Master ACK's, send the next byte
+            {
+               if (sent_byte_counter <= NUM_BYTES_RD)
+               {
+                 if(Flag == 0)
+				 {
+                  SMB0DAT = Data[sent_byte_counter-1];
+                  sent_byte_counter++;
+				  }
+				  if(Flag == 1)
+				 {
+                  SMB0DAT = Data[sent_byte_counter-1];
+                  sent_byte_counter++;
+				  }
+               }
+            }                          // Otherwise, do nothing
+            break;
+
+      
+         case  SMB_STSTO:
+
+            STO = 0;                   // STO must be cleared by software when
+                                       // a STOP is detected as a slave
+            break;
+
+         // Default: all other cases undefined
+         default:
+
+           
+            break;
+      }
+   }
+   // ARBLOST = 1, Abort failed transfer
+   else
+   {
+      STA = 0;
+      STO = 0;
+      ACK = 0;
+   }
+
+   SI = 0;                             // Clear SMBus interrupt flag
+}
+/*************************************************************
+//! 函数名：void Oscillator_Init (void)
+//! 函数说明：内部时钟初始化
+*************************************************************/
+void Oscillator_Init (void)
+{
+	unsigned char SFRPAGE_save = SFRPAGE;
+
+	SFRPAGE = CONFIG_PAGE;
+
+	OSCICN |= 0x83;
+
+	RSTSRC = 0x04;
+
+	SFRPAGE = SFRPAGE_save;
+}
+
+
+
+
+/*************************************************************
+//! 函数名：void Watchdog_Init()
+//! 函数说明：看门狗初始化
+*************************************************************/
+void Watchdog_Init()
+{
+   unsigned char SFRPAGE_save = SFRPAGE; // Save the current SFRPAGE
+
+   SFRPAGE = CONFIG_PAGE;              // Switch to the necessary SFRPAGE
+
+   // Step 1: Disable the WDT by writing a ??to the WDTE bit.
+   // (already disabled)
+
+   // Step 2: Select the desired PCA clock source (with the CPS2-CPS0 bits).
+   PCA0MD &= ~0x0E;                   // Timebase selected - System clock / 12
+
+   // Step 3: Load PCA0CPL5 with the desired WDT update offset value.
+   PCA0CPL5 = 0xFF;                   // A value of 255 (0xFF) is 32.1 ms
+                                       // with a timebase of SYSCLK/12
+    //PCA0L = 0x00;
+   // PCA0H = 0x00;
+
+   // Step 4: Configure the PCA Idle mode (set CIDL if the WDT should be
+   // suspended while the CPU is in Idle mode).
+   PCA0MD &= ~0x80;                   // PCA runs normally in IDLE mode
+
+   // Step 5: Enable the WDT by setting the WDTE bit to ??
+   PCA0MD |= 0x40;
+
+   // Step 6: Write a value to PCA0CPH5 to reload the WDT.
+   //PCA0CPH5 = 0x00;
+
+   SFRPAGE = SFRPAGE_save;             // Restore the SFRPAGE
+}
+/*************************************************************
+//! 函数名：void clrwdt()
+//! 函数说明：喂狗
+*************************************************************/
+void clrwdt()
+{
+    //PCA0MD &= ~0x40;
+   // PCA0CPL5 = 0xFF; 
+    PCA0CPH5 = 0x00;
+    //PCA0L = 0x00;
+    //PCA0H = 0x00;
+   // PCA0MD |= 0x40;
+
+}
+
+void Delay_1ms(void)
+{
+	xdata unsigned int j ;
+    for(j=3060;j>0;j--);
+}
+
+void Delay_ms(unsigned int i)
+{
+    for(;i>0;i--) Delay_1ms();
+}
+
+

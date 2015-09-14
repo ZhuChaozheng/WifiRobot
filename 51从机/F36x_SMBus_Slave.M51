@@ -1,0 +1,731 @@
+BL51 BANKED LINKER/LOCATER V6.00              01/22/2015  19:46:13  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.00, INVOKED BY:
+C:\KEIL\C51\BIN\BL51.EXE E:\ÎÒµÄ±ÏÒµÉè¼Æ\³ÌÐò\ÂÄ´ø»úÆ÷ÈË\51´Ó»ú\F36x_SMBus_Sla
+>> ve.obj, E:\ÎÒµÄ±ÏÒµÉè¼Æ\³ÌÐò\ÂÄ´ø»úÆ÷ÈË\51´Ó»ú\pwm_c.obj, E:\ÎÒµÄ±ÏÒµÉè¼Æ\³
+>> ÌÐò\ÂÄ´ø»úÆ÷ÈË\51´Ó»ú\servoarm.obj, E:\ÎÒµÄ±ÏÒµÉè¼Æ\³ÌÐò\ÂÄ´ø»úÆ÷ÈË\51´Ó»ú\
+>> Timer2.obj TO E:\ÎÒµÄ±ÏÒµÉè¼Æ\³ÌÐò\ÂÄ´ø»úÆ÷ÈË\51´Ó»ú\F36x_SMBus_Slave RS (2
+>> 56) PL (68) PW (78)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  E:\ÎÒµÄ±ÏÒµÉè¼Æ\³ÌÐò\ÂÄ´ø»úÆ÷ÈË\51´Ó»ú\F36x_SMBus_Slave.obj (F36X_SMBUS_SLAV
+>> E)
+  E:\ÎÒµÄ±ÏÒµÉè¼Æ\³ÌÐò\ÂÄ´ø»úÆ÷ÈË\51´Ó»ú\pwm_c.obj (PWM_C)
+  E:\ÎÒµÄ±ÏÒµÉè¼Æ\³ÌÐò\ÂÄ´ø»úÆ÷ÈË\51´Ó»ú\servoarm.obj (SERVOARM)
+  E:\ÎÒµÄ±ÏÒµÉè¼Æ\³ÌÐò\ÂÄ´ø»úÆ÷ÈË\51´Ó»ú\Timer2.obj (TIMER2)
+  C:\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+  C:\KEIL\C51\LIB\C51S.LIB (?C?CLDPTR)
+  C:\KEIL\C51\LIB\C51S.LIB (?C?CLDOPTR)
+  C:\KEIL\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  E:\ÎÒµÄ±ÏÒµÉè¼Æ\³ÌÐò\ÂÄ´ø»úÆ÷ÈË\51´Ó»ú\F36x_SMBus_Slave (
+>> F36X_SMBUS_SLAVE)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     001EH     UNIT         ?DT?F36X_SMBUS_SLAVE
+            DATA    0026H     0008H     UNIT         _DATA_GROUP_
+            DATA    002EH     0004H     UNIT         ?DT?TIMER2
+            DATA    0032H     0002H     UNIT         ?DT?SERVOARM
+            IDATA   0034H     0001H     UNIT         ?STACK
+
+            * * * * * * *  X D A T A   M E M O R Y  * * * * * * *
+            XDATA   0000H     0002H     UNIT         _XDATA_GROUP_
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0020H     UNIT         ?PR?DELAY_1MS?F36X_SMBUS_
+>> SLAVE
+            CODE    0023H     0007H     UNIT         ?PR?SERVO_TURN_LEFT?SERVO
+>> ARM
+                    002AH     0001H                  *** GAP ***
+            CODE    002BH     0003H     ABSOLUTE     
+            CODE    002EH     0009H     UNIT         ?PR?SERVO_INIT?SERVOARM
+            CODE    0037H     0004H     UNIT         ?PR?CLRWDT?F36X_SMBUS_SLA
+>> VE
+            CODE    003BH     0003H     ABSOLUTE     
+            CODE    003EH     00F8H     UNIT         ?PR?_DC_MOTOR?PWM_C
+            CODE    0136H     00C9H     UNIT         ?PR?_CAR_MOVEMENT_CONTROL
+>> ?F36X_SMBUS_SLAVE
+            CODE    01FFH     00B6H     UNIT         ?PR?SMBUS_ISR?F36X_SMBUS_
+>> SLAVE
+            CODE    02B5H     008CH     UNIT         ?C_C51STARTUP
+            CODE    0341H     004BH     UNIT         ?PR?PWM_INIT?PWM_C
+            CODE    038CH     0046H     UNIT         ?C?LIB_CODE
+            CODE    03D2H     003EH     UNIT         ?PR?TIMER2_ISR?TIMER2
+            CODE    0410H     002EH     UNIT         ?PR?MAIN?F36X_SMBUS_SLAVE
+>> 
+            CODE    043EH     001DH     UNIT         ?PR?SMBUS_INIT?F36X_SMBUS
+>> _SLAVE
+BL51 BANKED LINKER/LOCATER V6.00            01/22/2015  19:46:13  PAGE 2
+
+
+            CODE    045BH     0017H     UNIT         ?PR?PWM_PORT_INIT?PWM_C
+            CODE    0472H     0017H     UNIT         ?PR?TIMER2_INIT?TIMER2
+            CODE    0489H     0016H     UNIT         ?PR?TIMER1_INIT?F36X_SMBU
+>> S_SLAVE
+            CODE    049FH     0016H     UNIT         ?C_INITSEG
+            CODE    04B5H     0014H     UNIT         ?PR?WATCHDOG_INIT?F36X_SM
+>> BUS_SLAVE
+            CODE    04C9H     0014H     UNIT         ?PR?_DELAY_MS?F36X_SMBUS_
+>> SLAVE
+            CODE    04DDH     000EH     UNIT         ?PR?OSCILLATOR_INIT?F36X_
+>> SMBUS_SLAVE
+            CODE    04EBH     000EH     UNIT         ?PR?SERVO_PORT_INIT?SERVO
+>> ARM
+            CODE    04F9H     0007H     UNIT         ?PR?SERVO_TURN_RIGHT?SERV
+>> OARM
+            CODE    0500H     0007H     UNIT         ?PR?SERVO_STOP?SERVOARM
+
+
+
+OVERLAY MAP OF MODULE:   E:\ÎÒµÄ±ÏÒµÉè¼Æ\³ÌÐò\ÂÄ´ø»úÆ÷ÈË\51´Ó»ú\F36x_SMBus_Sla
+>> ve (F36X_SMBUS_SLAVE)
+
+
+SEGMENT                                            DATA_GROUP          XDATA_G
+>> ROUP
+  +--> CALLED SEGMENT                            START    LENGTH     START    
+>> LENGTH
+------------------------------------------------------------------------------
+>> ------
+?C_C51STARTUP                                    -----    -----      -----    
+>> -----
+  +--> ?PR?MAIN?F36X_SMBUS_SLAVE
+  +--> ?C_INITSEG
+
+?PR?MAIN?F36X_SMBUS_SLAVE                        0026H    0005H      -----    
+>> -----
+  +--> ?PR?OSCILLATOR_INIT?F36X_SMBUS_SLAVE
+  +--> ?PR?TIMER1_INIT?F36X_SMBUS_SLAVE
+  +--> ?PR?SMBUS_INIT?F36X_SMBUS_SLAVE
+  +--> ?PR?PWM_INIT?PWM_C
+  +--> ?PR?SERVO_INIT?SERVOARM
+  +--> ?PR?_CAR_MOVEMENT_CONTROL?F36X_SMBUS_...
+
+?PR?PWM_INIT?PWM_C                               002BH    0001H      -----    
+>> -----
+  +--> ?PR?PWM_PORT_INIT?PWM_C
+  +--> ?PR?_DC_MOTOR?PWM_C
+
+?PR?SERVO_INIT?SERVOARM                          -----    -----      -----    
+>> -----
+  +--> ?PR?SERVO_PORT_INIT?SERVOARM
+  +--> ?PR?TIMER2_INIT?TIMER2
+  +--> ?PR?SERVO_STOP?SERVOARM
+
+?PR?_CAR_MOVEMENT_CONTROL?F36X_SMBUS_...         002BH    0003H      -----    
+>> -----
+  +--> ?PR?_DC_MOTOR?PWM_C
+  +--> ?PR?_DELAY_MS?F36X_SMBUS_SLAVE
+  +--> ?PR?SERVO_TURN_LEFT?SERVOARM
+  +--> ?PR?SERVO_TURN_RIGHT?SERVOARM
+  +--> ?PR?SERVO_STOP?SERVOARM
+
+?PR?_DELAY_MS?F36X_SMBUS_SLAVE                   -----    -----      -----    
+>> -----
+  +--> ?PR?DELAY_1MS?F36X_SMBUS_SLAVE
+BL51 BANKED LINKER/LOCATER V6.00            01/22/2015  19:46:13  PAGE 3
+
+
+
+?PR?DELAY_1MS?F36X_SMBUS_SLAVE                   -----    -----      0000H    
+>> 0002H
+
+
+
+SYMBOL TABLE OF MODULE:  E:\ÎÒµÄ±ÏÒµÉè¼Æ\³ÌÐò\ÂÄ´ø»úÆ÷ÈË\51´Ó»ú\F36x_SMBus_Sla
+>> ve (F36X_SMBUS_SLAVE)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        F36X_SMBUS_SLAVE
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00B0H         PUBLIC        P3
+  D:000AH         PUBLIC        Pre_Data
+  D:00E6H         PUBLIC        EIE1
+  B:00A8H.7       PUBLIC        EA
+  D:00A7H         PUBLIC        SFRPAGE
+  C:0037H         PUBLIC        clrwdt
+  D:00F6H         PUBLIC        PCA0CPH5
+  D:00D9H         PUBLIC        PCA0MD
+  C:04DDH         PUBLIC        Oscillator_Init
+  B:00C0H.2       PUBLIC        ARBLOST
+  D:00F5H         PUBLIC        PCA0CPL5
+  C:01FFH         PUBLIC        SMBus_ISR
+  B:00C0H.0       PUBLIC        SI
+  D:00E1H         PUBLIC        XBR0
+  D:00C1H         PUBLIC        SMB0CF
+  D:00E2H         PUBLIC        XBR1
+  D:00C0H         PUBLIC        SMB0CN
+  C:0410H         PUBLIC        main
+  C:0489H         PUBLIC        Timer1_Init
+  C:04B5H         PUBLIC        Watchdog_Init
+  C:04C9H         PUBLIC        _Delay_ms
+  D:0089H         PUBLIC        TMOD
+  D:001AH         PUBLIC        rec_flag
+  D:00D4H         PUBLIC        P0SKIP
+  D:00B7H         PUBLIC        OSCICN
+  C:043EH         PUBLIC        SMBus_Init
+  D:008DH         PUBLIC        TH1
+  B:00C0H.1       PUBLIC        ACK
+  D:008BH         PUBLIC        TL1
+  B:0088H.6       PUBLIC        TR1
+  D:00EFH         PUBLIC        RSTSRC
+  C:0003H         PUBLIC        Delay_1ms
+  B:00C0H.5       PUBLIC        STA
+  D:00C2H         PUBLIC        SMB0DAT
+  C:0136H         PUBLIC        _car_movement_control
+  D:008EH         PUBLIC        CKCON
+  D:001BH         PUBLIC        DATA_READY
+  B:00C0H.4       PUBLIC        STO
+  D:001CH         PUBLIC        SLAVE_ADDR
+  D:001DH         PUBLIC        Flag
+  D:001EH         PUBLIC        Data
+  -------         PROC          MAIN
+  -------         DO            
+  D:0026H         SYMBOL        i
+  D:0027H         SYMBOL        max_data_chn
+  D:0028H         SYMBOL        car_cmd
+  -------         ENDDO         
+  C:0410H         LINE#         84
+  C:0410H         LINE#         85
+BL51 BANKED LINKER/LOCATER V6.00            01/22/2015  19:46:13  PAGE 4
+
+
+  C:0410H         LINE#         89
+  C:0413H         LINE#         91
+  C:0416H         LINE#         93
+  C:0419H         LINE#         98
+  C:041CH         LINE#         100
+  C:041FH         LINE#         102
+  C:0422H         LINE#         106
+  C:0424H         LINE#         140
+  C:0424H         LINE#         142
+  C:0427H         LINE#         146
+  C:042BH         LINE#         148
+  C:042EH         LINE#         150
+  C:0439H         LINE#         152
+  C:043CH         LINE#         155
+  -------         ENDPROC       MAIN
+  -------         PROC          _CAR_MOVEMENT_CONTROL
+  D:002BH         SYMBOL        cmd
+  C:0136H         LINE#         160
+  C:013CH         LINE#         161
+  C:013CH         LINE#         162
+  C:0142H         LINE#         163
+  C:0142H         LINE#         164
+  C:0146H         LINE#         166
+  C:0146H         LINE#         167
+  C:0148H         LINE#         168
+  C:0157H         LINE#         169
+  C:0157H         LINE#         170
+  C:0160H         LINE#         171
+  C:0167H         LINE#         172
+  C:0169H         LINE#         173
+  C:016BH         LINE#         174
+  C:017AH         LINE#         175
+  C:017AH         LINE#         176
+  C:0183H         LINE#         177
+  C:0187H         LINE#         178
+  C:0189H         LINE#         179
+  C:0198H         LINE#         180
+  C:0198H         LINE#         181
+  C:01A1H         LINE#         182
+  C:01A5H         LINE#         183
+  C:01A7H         LINE#         184
+  C:01B6H         LINE#         185
+  C:01B6H         LINE#         186
+  C:01BFH         LINE#         187
+  C:01C8H         LINE#         188
+  C:01C8H         LINE#         190
+  C:01C8H         LINE#         192
+  C:01D7H         LINE#         193
+  C:01D7H         LINE#         194
+  C:01DAH         LINE#         195
+  C:01DAH         LINE#         196
+  C:01E9H         LINE#         197
+  C:01E9H         LINE#         198
+  C:01ECH         LINE#         199
+  C:01ECH         LINE#         200
+  C:01FBH         LINE#         201
+  C:01FBH         LINE#         202
+  C:01FEH         LINE#         203
+  C:01FEH         LINE#         205
+  C:01FEH         LINE#         207
+  -------         ENDPROC       _CAR_MOVEMENT_CONTROL
+  -------         PROC          SMBUS_INIT
+  -------         DO            
+  D:0007H         SYMBOL        SFRPAGE_save
+  -------         ENDDO         
+BL51 BANKED LINKER/LOCATER V6.00            01/22/2015  19:46:13  PAGE 5
+
+
+  C:043EH         LINE#         215
+  C:043EH         LINE#         216
+  C:043EH         LINE#         217
+  C:0440H         LINE#         219
+  C:0443H         LINE#         221
+  C:0446H         LINE#         223
+  C:0449H         LINE#         227
+  C:044CH         LINE#         230
+  C:044FH         LINE#         232
+  C:0452H         LINE#         234
+  C:0455H         LINE#         235
+  C:0458H         LINE#         236
+  C:045AH         LINE#         237
+  -------         ENDPROC       SMBUS_INIT
+  -------         PROC          TIMER1_INIT
+  -------         DO            
+  D:0007H         SYMBOL        SFRPAGE_save
+  -------         ENDDO         
+  C:0489H         LINE#         243
+  C:0489H         LINE#         244
+  C:0489H         LINE#         245
+  C:048BH         LINE#         247
+  C:048EH         LINE#         252
+  C:0491H         LINE#         268
+  C:0494H         LINE#         271
+  C:0497H         LINE#         273
+  C:049AH         LINE#         275
+  C:049CH         LINE#         277
+  C:049EH         LINE#         278
+  -------         ENDPROC       TIMER1_INIT
+  -------         PROC          SMBUS_ISR
+  -------         DO            
+  D:0008H         SYMBOL        sent_byte_counter
+  D:0009H         SYMBOL        rec_byte_counter
+  -------         ENDDO         
+  C:01FFH         LINE#         287
+  C:020AH         LINE#         294
+  C:0210H         LINE#         295
+  C:0210H         LINE#         296
+  C:0229H         LINE#         297
+  C:0229H         LINE#         299
+  C:0229H         LINE#         301
+  C:022BH         LINE#         303
+  C:022EH         LINE#         304
+  C:0231H         LINE#         306
+  C:023DH         LINE#         307
+  C:023DH         LINE#         308
+  C:023FH         LINE#         310
+  C:0244H         LINE#         311
+  C:0244H         LINE#         312
+  C:0248H         LINE#         313
+  C:0248H         LINE#         314
+  C:0250H         LINE#         315
+  C:0252H         LINE#         316
+  C:0252H         LINE#         317
+  C:0258H         LINE#         318
+  C:0258H         LINE#         319
+  C:0258H         LINE#         320
+  C:0258H         LINE#         321
+  C:0258H         LINE#         322
+  C:0258H         LINE#         323
+  C:025AH         LINE#         325
+  C:025AH         LINE#         326
+  C:025CH         LINE#         327
+  C:025CH         LINE#         328
+BL51 BANKED LINKER/LOCATER V6.00            01/22/2015  19:46:13  PAGE 6
+
+
+  C:025EH         LINE#         331
+  C:025EH         LINE#         333
+  C:0260H         LINE#         335
+  C:0262H         LINE#         338
+  C:0262H         LINE#         339
+  C:026CH         LINE#         340
+  C:026EH         LINE#         341
+  C:0274H         LINE#         342
+  C:0274H         LINE#         343
+  C:0276H         LINE#         344
+  C:0279H         LINE#         345
+  C:0279H         LINE#         347
+  C:027BH         LINE#         350
+  C:027BH         LINE#         352
+  C:027EH         LINE#         353
+  C:027EH         LINE#         354
+  C:0285H         LINE#         355
+  C:0285H         LINE#         356
+  C:0289H         LINE#         357
+  C:0289H         LINE#         358
+  C:0291H         LINE#         359
+  C:0293H         LINE#         360
+  C:0293H         LINE#         361
+  C:0298H         LINE#         362
+  C:0298H         LINE#         363
+  C:02A0H         LINE#         364
+  C:02A2H         LINE#         365
+  C:02A2H         LINE#         366
+  C:02A2H         LINE#         367
+  C:02A2H         LINE#         368
+  C:02A4H         LINE#         371
+  C:02A4H         LINE#         378
+  C:02A4H         LINE#         381
+  C:02A4H         LINE#         382
+  C:02A4H         LINE#         383
+  C:02A4H         LINE#         386
+  C:02A4H         LINE#         387
+  C:02A6H         LINE#         388
+  C:02A8H         LINE#         389
+  C:02AAH         LINE#         390
+  C:02AAH         LINE#         392
+  C:02ACH         LINE#         393
+  -------         ENDPROC       SMBUS_ISR
+  -------         PROC          OSCILLATOR_INIT
+  -------         DO            
+  D:0007H         SYMBOL        SFRPAGE_save
+  -------         ENDDO         
+  C:04DDH         LINE#         398
+  C:04DDH         LINE#         399
+  C:04DDH         LINE#         400
+  C:04DFH         LINE#         402
+  C:04E2H         LINE#         404
+  C:04E5H         LINE#         406
+  C:04E8H         LINE#         408
+  C:04EAH         LINE#         409
+  -------         ENDPROC       OSCILLATOR_INIT
+  -------         PROC          WATCHDOG_INIT
+  -------         DO            
+  D:0007H         SYMBOL        SFRPAGE_save
+  -------         ENDDO         
+  C:04B5H         LINE#         418
+  C:04B5H         LINE#         419
+  C:04B5H         LINE#         420
+  C:04B7H         LINE#         422
+  C:04BAH         LINE#         428
+BL51 BANKED LINKER/LOCATER V6.00            01/22/2015  19:46:13  PAGE 7
+
+
+  C:04BDH         LINE#         431
+  C:04C0H         LINE#         438
+  C:04C3H         LINE#         441
+  C:04C6H         LINE#         446
+  C:04C8H         LINE#         447
+  -------         ENDPROC       WATCHDOG_INIT
+  -------         PROC          CLRWDT
+  C:0037H         LINE#         452
+  C:0037H         LINE#         453
+  C:0037H         LINE#         456
+  C:003AH         LINE#         461
+  -------         ENDPROC       CLRWDT
+  -------         PROC          DELAY_1MS
+  -------         DO            
+  X:0000H         SYMBOL        j
+  -------         ENDDO         
+  C:0003H         LINE#         463
+  C:0003H         LINE#         464
+  C:0003H         LINE#         466
+  C:0022H         LINE#         467
+  -------         ENDPROC       DELAY_1MS
+  -------         PROC          _DELAY_MS
+  D:0006H         SYMBOL        i
+  C:04C9H         LINE#         469
+  C:04C9H         LINE#         470
+  C:04C9H         LINE#         471
+  C:04DCH         LINE#         472
+  -------         ENDPROC       _DELAY_MS
+  -------         ENDMOD        F36X_SMBUS_SLAVE
+
+  -------         MODULE        PWM_C
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0090H         PUBLIC        P1
+  D:00B0H         PUBLIC        P3
+  D:00A7H         PUBLIC        SFRPAGE
+  D:00A4H         PUBLIC        P0MDOUT
+  D:00A5H         PUBLIC        P1MDOUT
+  D:00AFH         PUBLIC        P3MDOUT
+  D:00FCH         PUBLIC        PCA0CPH0
+  D:00EAH         PUBLIC        PCA0CPH1
+  D:00ECH         PUBLIC        PCA0CPH2
+  B:00D8H.6       PUBLIC        CR
+  D:00EEH         PUBLIC        PCA0CPH3
+  D:00FEH         PUBLIC        PCA0CPH4
+  D:00F6H         PUBLIC        PCA0CPH5
+  D:00DAH         PUBLIC        PCA0CPM0
+  D:00D9H         PUBLIC        PCA0MD
+  D:00DBH         PUBLIC        PCA0CPM1
+  D:00DCH         PUBLIC        PCA0CPM2
+  D:00DDH         PUBLIC        PCA0CPM3
+  D:00DEH         PUBLIC        PCA0CPM4
+  D:00E2H         PUBLIC        XBR1
+  D:00D4H         PUBLIC        P0SKIP
+  C:0341H         PUBLIC        PWM_Init
+  C:045BH         PUBLIC        PWM_Port_Init
+  C:0042H         PUBLIC        _DC_Motor
+  -------         PROC          PWM_INIT
+  -------         DO            
+  D:002BH         SYMBOL        SFRPAGE_save
+  -------         ENDDO         
+  C:0341H         LINE#         7
+  C:0341H         LINE#         8
+  C:0341H         LINE#         9
+  C:0344H         LINE#         11
+  C:0347H         LINE#         13
+BL51 BANKED LINKER/LOCATER V6.00            01/22/2015  19:46:13  PAGE 8
+
+
+  C:034AH         LINE#         17
+  C:034DH         LINE#         19
+  C:0350H         LINE#         20
+  C:0353H         LINE#         21
+  C:0356H         LINE#         22
+  C:0359H         LINE#         23
+  C:035CH         LINE#         28
+  C:035FH         LINE#         29
+  C:0362H         LINE#         30
+  C:0365H         LINE#         31
+  C:0368H         LINE#         32
+  C:036BH         LINE#         35
+  C:036DH         LINE#         37
+  C:0370H         LINE#         39
+  C:0375H         LINE#         40
+  C:037AH         LINE#         41
+  C:0383H         LINE#         42
+  -------         ENDPROC       PWM_INIT
+  -------         PROC          PWM_PORT_INIT
+  -------         DO            
+  D:0007H         SYMBOL        SFRPAGE_save
+  -------         ENDDO         
+  C:045BH         LINE#         53
+  C:045BH         LINE#         54
+  C:045BH         LINE#         55
+  C:045DH         LINE#         57
+  C:0460H         LINE#         61
+  C:0463H         LINE#         63
+  C:0466H         LINE#         68
+  C:0469H         LINE#         74
+  C:046CH         LINE#         77
+  C:046FH         LINE#         84
+  C:0471H         LINE#         85
+  -------         ENDPROC       PWM_PORT_INIT
+  -------         PROC          L?0043
+  -------         ENDPROC       L?0043
+  -------         PROC          _DC_MOTOR
+  D:0007H         SYMBOL        motor_num
+  D:0005H         SYMBOL        direction
+  D:0003H         SYMBOL        motor_speed
+  -------         DO            
+  D:0001H         SYMBOL        SFRPAGE_save
+  -------         ENDDO         
+  C:0042H         LINE#         92
+  C:0042H         LINE#         93
+  C:0042H         LINE#         94
+  C:0044H         LINE#         98
+  C:0047H         LINE#         101
+  C:004AH         LINE#         102
+  C:004AH         LINE#         103
+  C:005FH         LINE#         104
+  C:005FH         LINE#         105
+  C:005FH         LINE#         107
+  C:0062H         LINE#         109
+  C:0064H         LINE#         111
+  C:0064H         LINE#         113
+  C:0067H         LINE#         115
+  C:0069H         LINE#         117
+  C:0069H         LINE#         119
+  C:006CH         LINE#         121
+  C:006EH         LINE#         123
+  C:006EH         LINE#         126
+  C:0071H         LINE#         128
+  C:0073H         LINE#         130
+  C:0073H         LINE#         132
+BL51 BANKED LINKER/LOCATER V6.00            01/22/2015  19:46:13  PAGE 9
+
+
+  C:0076H         LINE#         134
+  C:0078H         LINE#         136
+  C:0078H         LINE#         138
+  C:007BH         LINE#         140
+  C:007DH         LINE#         142
+  C:007DH         LINE#         143
+  C:007DH         LINE#         144
+  C:007DH         LINE#         147
+  C:0092H         LINE#         148
+  C:0092H         LINE#         149
+  C:0092H         LINE#         151
+  C:0098H         LINE#         153
+  C:009AH         LINE#         155
+  C:009AH         LINE#         157
+  C:00A0H         LINE#         159
+  C:00A2H         LINE#         161
+  C:00A2H         LINE#         163
+  C:00A8H         LINE#         165
+  C:00AAH         LINE#         167
+  C:00AAH         LINE#         170
+  C:00B0H         LINE#         172
+  C:00B2H         LINE#         174
+  C:00B2H         LINE#         176
+  C:00B8H         LINE#         178
+  C:00BAH         LINE#         180
+  C:00BAH         LINE#         182
+  C:00C0H         LINE#         184
+  C:00C0H         LINE#         186
+  C:00C0H         LINE#         187
+  C:00C0H         LINE#         190
+  C:00CBH         LINE#         191
+  C:00CBH         LINE#         192
+  C:00CBH         LINE#         194
+  C:00D1H         LINE#         195
+  C:00D7H         LINE#         196
+  C:00DDH         LINE#         197
+  C:00E3H         LINE#         198
+  C:00EBH         LINE#         202
+  C:00EDH         LINE#         206
+  C:00EDH         LINE#         208
+  C:00F3H         LINE#         209
+  C:00F9H         LINE#         210
+  C:00FFH         LINE#         211
+  C:0105H         LINE#         212
+  C:010BH         LINE#         213
+  C:0113H         LINE#         215
+  C:0115H         LINE#         219
+  C:0115H         LINE#         221
+  C:011BH         LINE#         222
+  C:0121H         LINE#         223
+  C:0127H         LINE#         224
+  C:012DH         LINE#         225
+  C:0133H         LINE#         227
+  C:0133H         LINE#         229
+  C:0133H         LINE#         230
+  C:0133H         LINE#         232
+  C:0135H         LINE#         233
+  -------         ENDPROC       _DC_MOTOR
+  -------         ENDMOD        PWM_C
+
+  -------         MODULE        SERVOARM
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0090H         PUBLIC        P1
+  D:00A7H         PUBLIC        SFRPAGE
+  D:00A5H         PUBLIC        P1MDOUT
+BL51 BANKED LINKER/LOCATER V6.00            01/22/2015  19:46:13  PAGE 10
+
+
+  D:00D5H         PUBLIC        P1SKIP
+  C:002EH         PUBLIC        servo_init
+  C:0500H         PUBLIC        servo_stop
+  C:04F9H         PUBLIC        servo_turn_right
+  D:0032H         PUBLIC        servo_pwm
+  C:0023H         PUBLIC        servo_turn_left
+  C:04EBH         PUBLIC        servo_port_init
+  -------         PROC          SERVO_INIT
+  C:002EH         LINE#         10
+  C:002EH         LINE#         11
+  C:002EH         LINE#         12
+  C:0031H         LINE#         13
+  C:0034H         LINE#         14
+  -------         ENDPROC       SERVO_INIT
+  -------         PROC          SERVO_PORT_INIT
+  -------         DO            
+  D:0007H         SYMBOL        SFRPAGE_save
+  -------         ENDDO         
+  C:04EBH         LINE#         17
+  C:04EBH         LINE#         18
+  C:04EBH         LINE#         19
+  C:04EDH         LINE#         20
+  C:04F0H         LINE#         22
+  C:04F3H         LINE#         23
+  C:04F6H         LINE#         27
+  C:04F8H         LINE#         28
+  -------         ENDPROC       SERVO_PORT_INIT
+  -------         PROC          SERVO_TURN_LEFT
+  C:0023H         LINE#         32
+  C:0023H         LINE#         33
+  C:0023H         LINE#         34
+  C:0029H         LINE#         35
+  -------         ENDPROC       SERVO_TURN_LEFT
+  -------         PROC          SERVO_TURN_RIGHT
+  C:04F9H         LINE#         37
+  C:04F9H         LINE#         38
+  C:04F9H         LINE#         39
+  C:04FFH         LINE#         40
+  -------         ENDPROC       SERVO_TURN_RIGHT
+  -------         PROC          SERVO_STOP
+  C:0500H         LINE#         42
+  C:0500H         LINE#         43
+  C:0500H         LINE#         44
+  C:0506H         LINE#         45
+  -------         ENDPROC       SERVO_STOP
+  -------         ENDMOD        SERVOARM
+
+  -------         MODULE        TIMER2
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0090H         PUBLIC        P1
+  C:03D2H         PUBLIC        Timer2_ISR
+  D:002EH         PUBLIC        SERVO_PWM_C
+  D:00A7H         PUBLIC        SFRPAGE
+  D:00CBH         PUBLIC        TMR2RLH
+  D:00A8H         PUBLIC        IE
+  D:00CAH         PUBLIC        TMR2RLL
+  C:0472H         PUBLIC        Timer2_Init
+  D:00C8H         PUBLIC        TMR2CN
+  B:0090H.7       PUBLIC        servo_pin
+  D:0030H         PUBLIC        i
+  D:008EH         PUBLIC        CKCON
+  -------         PROC          TIMER2_INIT
+  -------         DO            
+  D:0007H         SYMBOL        SFRPAGE_save
+  -------         ENDDO         
+BL51 BANKED LINKER/LOCATER V6.00            01/22/2015  19:46:13  PAGE 11
+
+
+  C:0472H         LINE#         6
+  C:0472H         LINE#         7
+  C:0472H         LINE#         9
+  C:0475H         LINE#         11
+  C:0477H         LINE#         12
+  C:047AH         LINE#         16
+  C:047DH         LINE#         17
+  C:0480H         LINE#         18
+  C:0483H         LINE#         23
+  C:0485H         LINE#         25
+  C:0488H         LINE#         27
+  -------         ENDPROC       TIMER2_INIT
+  -------         PROC          TIMER2_ISR
+  C:03D2H         LINE#         30
+  C:03D6H         LINE#         36
+  C:03D9H         LINE#         37
+  C:03E1H         LINE#         39
+  C:03EAH         LINE#         40
+  C:03EAH         LINE#         42
+  C:03ECH         LINE#         43
+  C:03F2H         LINE#         44
+  C:03F2H         LINE#         47
+  C:03FDH         LINE#         48
+  C:03FDH         LINE#         49
+  C:0403H         LINE#         50
+  C:0405H         LINE#         51
+  C:040BH         LINE#         52
+  C:040BH         LINE#         54
+  -------         ENDPROC       TIMER2_ISR
+  -------         ENDMOD        TIMER2
+
+  -------         MODULE        ?C?CLDPTR
+  C:038CH         PUBLIC        ?C?CLDPTR
+  -------         ENDMOD        ?C?CLDPTR
+
+  -------         MODULE        ?C?CLDOPTR
+  C:03A5H         PUBLIC        ?C?CLDOPTR
+  -------         ENDMOD        ?C?CLDOPTR
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?WATCHDOG_INIT?F36X_SMBUS_SLAVE
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?CLRWDT?F36X_SMBUS_SLAVE
+
+Program Size: data=53.0 xdata=2 code=1286
+LINK/LOCATE RUN COMPLETE.  2 WARNING(S),  0 ERROR(S)

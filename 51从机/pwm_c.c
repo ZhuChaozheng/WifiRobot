@@ -1,0 +1,239 @@
+#include"pwm_h.h"
+/******************************************************************************
+//! 函数名：void PWM_Init()
+//! 函数功能：PWM初始化
+******************************************************************************/
+
+void PWM_Init()
+{
+	unsigned char SFRPAGE_save = SFRPAGE; 
+
+ 	PWM_Port_Init();
+
+	SFRPAGE = CONFIG_PAGE;             
+
+	
+	//PCA0CN = 0x00;                      
+	PCA0MD = 0x08;                      // 采用系统时钟
+
+	PCA0CPM0 = 0x42;                    //8 PWM 模式，比较器功能使能，PWM使能
+	PCA0CPM1 = 0x42;
+	PCA0CPM2 = 0x42;
+	PCA0CPM3 = 0x42;
+	PCA0CPM4 = 0x42;
+//	PCA0CPM5 = 0x42;
+
+
+
+	PCA0CPH0 = 0xFE;
+	PCA0CPH1 = 0xFE;
+	PCA0CPH2 = 0xFE;
+	PCA0CPH3 = 0xFE;
+	PCA0CPH4 = 0xFE;
+	//PCA0CPH5 = 0xFE;
+
+	CR = 1;        //允许PCA计数，定时
+
+	SFRPAGE = SFRPAGE_save; 
+	
+	DC_Motor(1,1,0);
+	DC_Motor(2,1,0);
+	DC_Motor(3,1,0);
+	DC_Motor(4,1,0); 
+	//DC_Motor(5,1,0);             
+}
+/******************************************************************************
+//! 函数名：void Oscillator_Init (void)
+//! 函数功能：时钟初始化
+//!----------------------------------------------------------------------------
+//! 电机控制线连接状况：
+//! CPP0 ----- P0.6    CPP1 ----- P0.7    CPP2 ----- P1.0
+//! CPP4 ----- P1.2
+******************************************************************************/
+void PWM_Port_Init()
+{
+	unsigned char SFRPAGE_save = SFRPAGE; 
+
+	SFRPAGE = CONFIG_PAGE;                                  
+	                                  
+	
+	
+    XBR1   |= 0x45;  //使能交叉开关，CEX0-3连接到管脚
+
+	P0SKIP |= 0x0F;  //Ray注释：与SYN6288串口P0.1和0.2冲突，屏蔽则语音正常播报
+ 
+//Ray添加 
+//    P0SKIP |= 0x09;  //仅跳过P0.0、P0.3
+//Ray添加
+	P0MDOUT |= 0xC0;   
+	//P0 &= ~0xC0;             
+	
+
+	//P1SKIP |= 0x03;
+	//P1MDOUT |= 0x03;
+	P1MDOUT |= 0x7F;
+    //P1 &= ~0x7F;
+	
+	P3MDOUT |= 0x60;
+	//P3 &= ~0x60;
+
+	//XBR0    = 0x00; // 对I2C有影响
+    
+	
+
+	SFRPAGE = SFRPAGE_save;            
+}
+
+/******************************************************************************
+//! 函数名：void DC_Motor(uc motor_num,uc direction, uc motor_speed)
+//! 函数功能：改变PWM占空比
+******************************************************************************/
+void 
+DC_Motor(unsigned char motor_num,unsigned char direction, unsigned char motor_speed)
+{
+	unsigned char SFRPAGE_save = SFRPAGE; 
+	
+	//float ucMotorSpeed;
+
+	SFRPAGE = CONFIG_PAGE;
+
+	//ucMotorSpeed = (float)(motor_speed)/100;
+	if(!motor_speed)
+	{
+		switch(motor_num)
+		{
+			case 1:
+			
+				PCA0CPH0 = 255;
+
+				break;
+
+			case 2:
+		
+				PCA0CPH1 = 255;
+
+				break;
+
+			case 3:
+			
+				PCA0CPH2 = 255;
+
+				break;
+
+			case 4:
+			
+			
+				PCA0CPH3 = 255;
+
+				break;
+
+	        case 5:		
+			
+				PCA0CPH4 = 255;
+
+				break;
+
+			case 6:		
+		
+				PCA0CPH5 = 255;
+
+				break;
+
+		    default: break;
+		}
+	}
+
+	else 
+	switch(motor_num)
+	{
+		case 1:
+			
+			PCA0CPH0 = 255 - (motor_speed+90);
+
+			break;
+
+		case 2:
+		
+			PCA0CPH1 = 255 - (motor_speed+116);
+
+			break;
+
+		case 3:
+			
+			PCA0CPH2 = 255 - (motor_speed+116);
+
+			break;
+
+		case 4:
+			
+			
+			PCA0CPH3 = 255 - (motor_speed+116);
+
+			break;
+
+        case 5:		
+			
+			PCA0CPH4 = 255 - (motor_speed+116);
+
+			break;
+
+		case 6:		
+		
+			PCA0CPH5 = 255 - (motor_speed+116);
+
+			break;
+
+	    default: break;
+	}
+
+	
+	switch(direction)
+	{
+		case 0: 
+
+			if(motor_num==1) P1 &= ~0x08; //P1.3 = 0,即DIR0置0
+			if(motor_num==2) P1 &= ~0x10; //P1.4 = 0,即DIR1置0
+			if(motor_num==3) P1 &= ~0x20; //P1.5 = 0,即DIR2置0
+			if(motor_num==4) P1 &= ~0x40; //P1.6 = 0,即DIR3置0
+			if(motor_num==5) P3 &= ~0x40; //P3.6 = 0,即DIR4置0
+
+			
+			
+			break;
+			
+			
+		
+		case 1: 
+
+			if(motor_num==1) PCA0CPH0 = 255;
+			if(motor_num==2) PCA0CPH1 = 255;
+			if(motor_num==3) PCA0CPH2 = 255;
+			if(motor_num==4) PCA0CPH3 = 255;
+			if(motor_num==5) PCA0CPH4 = 255;
+			if(motor_num==6) PCA0CPH5 = 255;
+
+			break;
+			
+
+
+		case 2: 
+		
+			if(motor_num==1) P1 |= 0x08;  //P1.3 = 1,即DIR0置1；
+			if(motor_num==2) P1 |= 0x10;  //P1.4 = 1,即DIR1置1；
+			if(motor_num==3) P1 |= 0x20;  //P1.5 = 1,即DIR2置1；
+			if(motor_num==4) P1 |= 0x40;  //P1.6 = 1,即DIR3置1；
+			if(motor_num==5) P3 |= 0x40;  //P3.6 = 1,即DIR4置1；
+
+			break;
+
+		default: break;
+	}
+
+	SFRPAGE = SFRPAGE_save;
+}
+/**********************************************************************************
+//! 文件结束
+**********************************************************************************/
+ 
+
+	

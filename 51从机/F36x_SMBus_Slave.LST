@@ -1,0 +1,520 @@
+C51 COMPILER V8.05a   F36X_SMBUS_SLAVE                                                     01/22/2015 19:46:12 PAGE 1   
+
+
+C51 COMPILER V8.05a, COMPILATION OF MODULE F36X_SMBUS_SLAVE
+OBJECT MODULE PLACED IN F36x_SMBus_Slave.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.exe F36x_SMBus_Slave.c DB OE BR
+
+line level    source
+
+   1          
+   2          #include "Sensor_AD.h"
+   3          #include "C8051F360.h"
+   4          #include "LED.h"
+   5          #include "main.h"
+   6          
+   7          //-----------------------------------------------------------------------------
+   8          // Global Constants
+   9          //-----------------------------------------------------------------------------
+  10          
+  11          #define  SYSCLK         24500000       // System clock frequency in Hz
+  12          
+  13          #define  SMB_FREQUENCY  65000          // Target SMBus frequency
+  14                                                 // This example supports between 10kHz
+  15                                                 // and 100kHz
+  16          
+  17          
+  18          #define  READ           0x01           // SMBus READ command
+  19          
+  20          
+  21          
+  22          // Status vector - top 4 bits only
+  23          #define  SMB_SRADD      0x20           // (SR) slave address received
+  24                                                 //    (also could be a lost
+  25                                                 //    arbitration)
+  26          #define  SMB_SRSTO      0x10           // (SR) STOP detected while SR or ST,
+  27                                                 //    or lost arbitration
+  28          #define  SMB_SRDB       0x00           // (SR) data byte received, or
+  29                                                 //    lost arbitration
+  30          #define  SMB_STDB       0x40           // (ST) data byte transmitted
+  31          #define  SMB_STSTO      0x50           // (ST) STOP detected during a
+  32                                                 //    transaction; bus error
+  33          // End status vector definition
+  34          
+  35          #define  NUM_BYTES_WR   7              // Number of bytes to write
+  36                                                 // Slave <- Master
+  37          #define  NUM_BYTES_RD   7             // Number of bytes to read
+  38                                                 // Slave -> Master
+  39          
+  40          
+  41          
+  42          
+  43          
+  44          unsigned char Data[8],Flag,Pre_Data[16];
+  45          
+  46          unsigned char  SLAVE_ADDR  =   0x07<<1;           // Device addresses (7 bits,
+  47                                                 // lsb is a don't care)
+  48          
+  49          unsigned char DATA_READY = 0;                    // Set to '1' by the SMBus ISR
+  50                                                 // when a new data byte has been
+  51                                                 // received.
+  52          
+  53          // 16-bit SFR declarations
+  54          sfr16    TMR3RL   = 0x92;              // Timer3 reload registers
+  55          sfr16    TMR3     = 0x94;              // Timer3 counter registers
+C51 COMPILER V8.05a   F36X_SMBUS_SLAVE                                                     01/22/2015 19:46:12 PAGE 2   
+
+  56          
+  57          
+  58          volatile char rec_flag = 0;
+  59          
+  60          
+  61          
+  62          struct movement_info
+  63          {
+  64              char car_forward;       
+  65                  char car_back;
+  66              char car_left;
+  67              char car_right;
+  68              char car_stop;
+  69          
+  70              char steer_left;       
+  71                  char steer_right;
+  72              char steer_stop;
+  73          };
+  74          
+  75          
+  76          void car_movement_control(struct movement_info *cmd);
+  77          void Delay_ms(unsigned int i);
+  78          void Delay_1ms(void);
+  79          
+  80          /*************************************************************
+  81          //! 函数名：void main (void)
+  82          //! 函数说明：主程序
+  83          *************************************************************/
+  84          void main (void)
+  85          {
+  86   1         unsigned char i,max_data_chn; 
+  87   1         struct movement_info *car_cmd;
+  88   1      
+  89   1         PCA0MD &= ~0x40;                    
+  90   1      
+  91   1         Oscillator_Init();
+  92   1          // ADC_PortInit();                  
+  93   1         Timer1_Init();                      
+  94   1      
+  95   1         //Timer3_Init ();                   
+  96   1                                             
+  97   1      
+  98   1         SMBus_Init ();
+  99   1                 
+ 100   1              PWM_Init();
+ 101   1                      
+ 102   1              servo_init();                   
+*** WARNING C206 IN LINE 102 OF F36X_SMBUS_SLAVE.C: 'servo_init': missing function-prototype
+ 103   1      
+ 104   1        //Watchdog_Init();
+ 105   1         
+ 106   1         EA = 1;                             // 开中断
+ 107   1      
+ 108   1      
+ 109   1      
+ 110   1      #if 0
+                  //车前进
+              //      DC_Motor(1, 0, 60); 
+              //      DC_Motor(2, 0, 50);
+              //      Delay_ms(1000);
+              
+                      //车后退
+C51 COMPILER V8.05a   F36X_SMBUS_SLAVE                                                     01/22/2015 19:46:12 PAGE 3   
+
+                      DC_Motor(1, 2, 70); 
+                      Delay_ms(10);
+                      DC_Motor(2, 2, 90);
+                      Delay_ms(1000);
+              
+                      //车右转
+                      DC_Motor(1, 2, 40);
+                      DC_Motor(2, 0, 50); 
+                      Delay_ms(1000);
+              
+                      //车左转
+                      DC_Motor(1, 0, 20);     //右轮大速度
+                      DC_Motor(2, 2, 20); 
+                      Delay_ms(1000);
+              
+                      //车停止
+                      DC_Motor(1, 1, 0);
+                      DC_Motor(2, 1, 0);
+                      while (1);
+              #endif
+ 137   1      
+ 138   1        
+ 139   1              do
+ 140   1              {             
+ 141   2      
+ 142   2                  Flag = 0; 
+ 143   2      
+ 144   2              //      clrwdt();
+ 145   2      
+ 146   2                      while (!rec_flag) ;
+ 147   2      
+ 148   2                      rec_flag = 0;
+ 149   2      
+ 150   2                      car_cmd = (struct movement_info *)Data;
+ 151   2      
+ 152   2                      car_movement_control(car_cmd);
+ 153   2                      
+ 154   2      
+ 155   2              }while(1);
+ 156   1      
+ 157   1      }
+*** WARNING C280 IN LINE 86 OF F36X_SMBUS_SLAVE.C: 'i': unreferenced local variable
+*** WARNING C280 IN LINE 86 OF F36X_SMBUS_SLAVE.C: 'max_data_chn': unreferenced local variable
+ 158          
+ 159          
+ 160          void car_movement_control(struct movement_info *cmd)
+ 161          {
+ 162   1              if (cmd->car_forward == 0x01)
+ 163   1              {
+ 164   2                      DC_Motor(1, 0, 60);
+ 165   2                      //Delay_ms(30);
+ 166   2                      DC_Motor(2, 0, 50); 
+ 167   2              }
+ 168   1              else if (cmd->car_back == 0x01)
+ 169   1              {
+ 170   2                      DC_Motor(1, 2, 70);
+ 171   2                      Delay_ms(10);
+ 172   2                      DC_Motor(2, 2, 90);
+ 173   2              }
+ 174   1              else if (cmd->car_right == 0x01)
+ 175   1              {
+ 176   2                      DC_Motor(1, 2, 40);
+C51 COMPILER V8.05a   F36X_SMBUS_SLAVE                                                     01/22/2015 19:46:12 PAGE 4   
+
+ 177   2                      DC_Motor(2, 0, 50);  //左轮大速度（此处电机有问题给很大的占空比，转速仍很小）
+ 178   2              }
+ 179   1              else if (cmd->car_left == 0x01)
+ 180   1              {
+ 181   2                      DC_Motor(1, 0, 20);     //右轮大速度
+ 182   2                      DC_Motor(2, 2, 20);
+ 183   2              }
+ 184   1              else if (cmd->car_stop == 0x01)
+ 185   1              {
+ 186   2                      DC_Motor(1, 1, 0);
+ 187   2                      DC_Motor(2, 1, 0);
+ 188   2              }
+ 189   1              else
+ 190   1              {}
+ 191   1      
+ 192   1              if (cmd->steer_left == 0x01)
+ 193   1              {
+ 194   2                      servo_turn_left();
+*** WARNING C206 IN LINE 194 OF F36X_SMBUS_SLAVE.C: 'servo_turn_left': missing function-prototype
+ 195   2              }
+ 196   1              else if (cmd->steer_right == 0x01)
+ 197   1              {
+ 198   2                      servo_turn_right();
+*** WARNING C206 IN LINE 198 OF F36X_SMBUS_SLAVE.C: 'servo_turn_right': missing function-prototype
+ 199   2              }
+ 200   1              else if (cmd->steer_stop == 0x01)
+ 201   1              {
+ 202   2                      servo_stop();
+*** WARNING C206 IN LINE 202 OF F36X_SMBUS_SLAVE.C: 'servo_stop': missing function-prototype
+ 203   2              }
+ 204   1              else
+ 205   1              {}
+ 206   1      
+ 207   1      }
+ 208          
+ 209          
+ 210          
+ 211          /*************************************************************
+ 212          //! 函数名：SMBus_Init (void)
+ 213          //! 函数说明：SMBus初始化
+ 214          *************************************************************/
+ 215          void SMBus_Init (void)
+ 216          {
+ 217   1         unsigned char SFRPAGE_save = SFRPAGE; // Save the current SFRPAGE
+ 218   1      
+ 219   1         SFRPAGE = CONFIG_PAGE;              // Switch to the necessary SFRPAGE
+ 220   1         
+ 221   1         P0SKIP &= ~0XFF;
+ 222   1      
+ 223   1         P0SKIP |= 0X0F;
+ 224   1         
+ 225   1      //   P0MDOUT &= ~0x30; 
+ 226   1      
+ 227   1         SMB0CF = 0x1D;                      // Use Timer1 overflows as SMBus clock
+ 228   1                                             // source;
+ 229   1                     
+ 230   1         SMB0CF |= 0x80;                     // Enable SMBus
+ 231   1      
+ 232   1         EIE1 |= 0x01;
+ 233   1      
+ 234   1         XBR0  |= 0X04;
+ 235   1              XBR1 = 0x40;       //交叉开关使能
+C51 COMPILER V8.05a   F36X_SMBUS_SLAVE                                                     01/22/2015 19:46:12 PAGE 5   
+
+ 236   1         SFRPAGE = SFRPAGE_save;             // Restore the SFRPAGE
+ 237   1      }
+ 238          
+ 239          /*************************************************************
+ 240          //! 函数名：Timer1_Init (void)
+ 241          //! 函数说明：定时器初始化
+ 242          *************************************************************/
+ 243          void Timer1_Init (void)
+ 244          {
+ 245   1         unsigned char SFRPAGE_save = SFRPAGE; // Save the current SFRPAGE
+ 246   1      
+ 247   1         SFRPAGE = CONFIG_PAGE;              // Switch to the necessary SFRPAGE
+ 248   1      
+ 249   1      
+ 250   1      #if ((SYSCLK/SMB_FREQUENCY/3) < 255)
+ 251   1         #define SCALE 1
+ 252   1            CKCON |= 0x08;                   // Timer1 clock source = SYSCLK
+ 253   1      #elif ((SYSCLK/SMB_FREQUENCY/4/3) < 255)
+                 #define SCALE 4
+                    CKCON |= 0x01;
+                    CKCON &= ~0x0A;                  // Timer1 clock source = SYSCLK / 4
+              #elif ((SYSCLK/SMB_FREQUENCY/12/3) < 255)
+                 #define SCALE 8
+                    CKCON &= ~0x0B;                  // Timer1 clock source = SYSCLK / 12
+              #elif ((SYSCLK/SMB_FREQUENCY/48/3) < 255)
+                 #define SCALE 4
+                    CKCON |= 0x02;
+                    CKCON &= ~0x09;                  // Timer1 clock source = SYSCLK / 48
+              #else
+                 #error "Error: Timer1 cannot produce the desired SMBus frequency"
+              #endif
+ 267   1      
+ 268   1         TMOD = 0x20;                        // Timer1 in 8-bit auto-reload mode
+ 269   1      
+ 270   1         // Timer1 configured to overflow at 1/3 the rate defined by SMB_FREQUENCY
+ 271   1         TH1 = -(SYSCLK/SMB_FREQUENCY/SCALE/3);
+ 272   1      
+ 273   1         TL1 = TH1;                          // Init Timer1
+ 274   1      
+ 275   1         TR1 = 1;                            // Timer1 enabled
+ 276   1      
+ 277   1         SFRPAGE = SFRPAGE_save;             // Restore the SFRPAGE
+ 278   1      }
+ 279          
+ 280          
+ 281          
+ 282          
+ 283          /*************************************************************
+ 284          //! 函数名：SMBus_ISR (void) interrupt 7
+ 285          //! 函数说明：中断服务程序
+ 286          *************************************************************/
+ 287          void SMBus_ISR (void) interrupt 7
+ 288          {
+ 289   1         static unsigned char sent_byte_counter;
+ 290   1         static unsigned char rec_byte_counter;
+ 291   1         
+ 292   1      
+ 293   1      
+ 294   1         if (ARBLOST == 0)
+ 295   1         {
+ 296   2            switch (SMB0CN & 0xF0)           // Decode the SMBus status vector
+ 297   2            {
+C51 COMPILER V8.05a   F36X_SMBUS_SLAVE                                                     01/22/2015 19:46:12 PAGE 6   
+
+ 298   3               // Slave Receiver: Start+Address received
+ 299   3               case  SMB_SRADD:
+ 300   3      
+ 301   3                  STA = 0;                   // Clear STA bit
+ 302   3      
+ 303   3                  sent_byte_counter = 1;     // Reinitialize the data counters
+ 304   3                  rec_byte_counter = 0;
+ 305   3      
+ 306   3                  if((SMB0DAT&0xFE) == (SLAVE_ADDR&0xFE)) // Decode address
+ 307   3                  {                          // If the received address matches,
+ 308   4                     ACK = 1;                // ACK the received slave address
+ 309   4      
+ 310   4                                 if((SMB0DAT&0x01) == READ) // If the transfer is a master READ,
+ 311   4                     {
+ 312   5                       if(Flag == 0)
+ 313   5                                       {
+ 314   6                                SMB0DAT = Data[sent_byte_counter-1];
+ 315   6                                sent_byte_counter++;
+ 316   6                                       }
+ 317   5                                       if(Flag == 1)
+ 318   5                                       {
+ 319   6                                SMB0DAT = Data[sent_byte_counter-1];
+ 320   6                                sent_byte_counter++;
+ 321   6                                       }
+ 322   5                     }
+ 323   4                  }
+ 324   3                  else                       // If received slave address does not
+ 325   3                  {                          // match,
+ 326   4                     ACK = 0;                // NACK received address
+ 327   4                  }
+ 328   3                  break;
+ 329   3      
+ 330   3      
+ 331   3               case  SMB_SRSTO:
+ 332   3      
+ 333   3                  STO = 0;                   // STO must be cleared by software when
+ 334   3                                             // a STOP is detected as a slave
+ 335   3                  break;
+ 336   3      
+ 337   3               // Slave Transmitter: Data byte transmitted
+ 338   3                       case SMB_SRDB:
+ 339   3                              Data[rec_byte_counter++] = SMB0DAT;     //接收命令
+ 340   3                              ACK = 1;
+ 341   3                              if (rec_byte_counter == 8)
+ 342   3                              {
+ 343   4                                      rec_byte_counter = 0;
+ 344   4                                      rec_flag = 1;
+ 345   4                              }
+ 346   3      
+ 347   3                       break;
+ 348   3      
+ 349   3      
+ 350   3               case  SMB_STDB:
+ 351   3      
+ 352   3                  if (ACK == 1)              // If Master ACK's, send the next byte
+ 353   3                  {
+ 354   4                     if (sent_byte_counter <= NUM_BYTES_RD)
+ 355   4                     {
+ 356   5                       if(Flag == 0)
+ 357   5                                       {
+ 358   6                        SMB0DAT = Data[sent_byte_counter-1];
+ 359   6                        sent_byte_counter++;
+C51 COMPILER V8.05a   F36X_SMBUS_SLAVE                                                     01/22/2015 19:46:12 PAGE 7   
+
+ 360   6                                        }
+ 361   5                                        if(Flag == 1)
+ 362   5                                       {
+ 363   6                        SMB0DAT = Data[sent_byte_counter-1];
+ 364   6                        sent_byte_counter++;
+ 365   6                                        }
+ 366   5                     }
+ 367   4                  }                          // Otherwise, do nothing
+ 368   3                  break;
+ 369   3      
+ 370   3            
+ 371   3               case  SMB_STSTO:
+ 372   3      
+ 373   3                  STO = 0;                   // STO must be cleared by software when
+ 374   3                                             // a STOP is detected as a slave
+ 375   3                  break;
+ 376   3      
+ 377   3               // Default: all other cases undefined
+ 378   3               default:
+ 379   3      
+ 380   3                 
+ 381   3                  break;
+ 382   3            }
+ 383   2         }
+ 384   1         // ARBLOST = 1, Abort failed transfer
+ 385   1         else
+ 386   1         {
+ 387   2            STA = 0;
+ 388   2            STO = 0;
+ 389   2            ACK = 0;
+ 390   2         }
+ 391   1      
+ 392   1         SI = 0;                             // Clear SMBus interrupt flag
+ 393   1      }
+ 394          /*************************************************************
+ 395          //! 函数名：void Oscillator_Init (void)
+ 396          //! 函数说明：内部时钟初始化
+ 397          *************************************************************/
+ 398          void Oscillator_Init (void)
+ 399          {
+ 400   1              unsigned char SFRPAGE_save = SFRPAGE;
+ 401   1      
+ 402   1              SFRPAGE = CONFIG_PAGE;
+ 403   1      
+ 404   1              OSCICN |= 0x83;
+ 405   1      
+ 406   1              RSTSRC = 0x04;
+ 407   1      
+ 408   1              SFRPAGE = SFRPAGE_save;
+ 409   1      }
+ 410          
+ 411          
+ 412          
+ 413          
+ 414          /*************************************************************
+ 415          //! 函数名：void Watchdog_Init()
+ 416          //! 函数说明：看门狗初始化
+ 417          *************************************************************/
+ 418          void Watchdog_Init()
+ 419          {
+ 420   1         unsigned char SFRPAGE_save = SFRPAGE; // Save the current SFRPAGE
+ 421   1      
+C51 COMPILER V8.05a   F36X_SMBUS_SLAVE                                                     01/22/2015 19:46:12 PAGE 8   
+
+ 422   1         SFRPAGE = CONFIG_PAGE;              // Switch to the necessary SFRPAGE
+ 423   1      
+ 424   1         // Step 1: Disable the WDT by writing a ??to the WDTE bit.
+ 425   1         // (already disabled)
+ 426   1      
+ 427   1         // Step 2: Select the desired PCA clock source (with the CPS2-CPS0 bits).
+ 428   1         PCA0MD &= ~0x0E;                   // Timebase selected - System clock / 12
+ 429   1      
+ 430   1         // Step 3: Load PCA0CPL5 with the desired WDT update offset value.
+ 431   1         PCA0CPL5 = 0xFF;                   // A value of 255 (0xFF) is 32.1 ms
+ 432   1                                             // with a timebase of SYSCLK/12
+ 433   1          //PCA0L = 0x00;
+ 434   1         // PCA0H = 0x00;
+ 435   1      
+ 436   1         // Step 4: Configure the PCA Idle mode (set CIDL if the WDT should be
+ 437   1         // suspended while the CPU is in Idle mode).
+ 438   1         PCA0MD &= ~0x80;                   // PCA runs normally in IDLE mode
+ 439   1      
+ 440   1         // Step 5: Enable the WDT by setting the WDTE bit to ??
+ 441   1         PCA0MD |= 0x40;
+ 442   1      
+ 443   1         // Step 6: Write a value to PCA0CPH5 to reload the WDT.
+ 444   1         //PCA0CPH5 = 0x00;
+ 445   1      
+ 446   1         SFRPAGE = SFRPAGE_save;             // Restore the SFRPAGE
+ 447   1      }
+ 448          /*************************************************************
+ 449          //! 函数名：void clrwdt()
+ 450          //! 函数说明：喂狗
+ 451          *************************************************************/
+ 452          void clrwdt()
+ 453          {
+ 454   1          //PCA0MD &= ~0x40;
+ 455   1         // PCA0CPL5 = 0xFF; 
+ 456   1          PCA0CPH5 = 0x00;
+ 457   1          //PCA0L = 0x00;
+ 458   1          //PCA0H = 0x00;
+ 459   1         // PCA0MD |= 0x40;
+ 460   1      
+ 461   1      }
+ 462          
+ 463          void Delay_1ms(void)
+ 464          {
+ 465   1              xdata unsigned int j ;
+ 466   1          for(j=3060;j>0;j--);
+ 467   1      }
+ 468          
+ 469          void Delay_ms(unsigned int i)
+ 470          {
+ 471   1          for(;i>0;i--) Delay_1ms();
+ 472   1      }
+ 473          
+ 474          
+*** WARNING C316 IN LINE 474 OF F36x_SMBus_Slave.c: unterminated conditionals
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    570    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       2
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     30       8
+C51 COMPILER V8.05a   F36X_SMBUS_SLAVE                                                     01/22/2015 19:46:12 PAGE 9   
+
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  7 WARNING(S),  0 ERROR(S)

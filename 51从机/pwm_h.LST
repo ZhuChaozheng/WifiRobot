@@ -1,0 +1,40 @@
+C51 COMPILER V8.05a   PWM_H                                                                10/22/2014 16:12:24 PAGE 1   
+
+
+C51 COMPILER V8.05a, COMPILATION OF MODULE PWM_H
+OBJECT MODULE PLACED IN pwm_h.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.exe pwm_h.h DB OE BR
+
+line level    source
+
+   1          #ifndef    _PWM_H_
+   2          #define    _PWM_H_
+   3          
+   4          #include"c8051f360.h"
+   5          
+   6          
+   7          #define SYSCLK       24500000
+   8          
+   9          void DC_Motor(unsigned char motor_num,
+  10                        unsigned char direction, unsigned char motor_speed);
+  11          void PWM_Load_Value(void);
+  12          void PWM_Port_Init(void);
+  13          //void Oscillator_Init (void);
+  14          void PWM_Init(void);
+  15          
+  16          
+  17          #endif
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

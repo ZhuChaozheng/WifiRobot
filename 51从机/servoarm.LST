@@ -1,0 +1,71 @@
+C51 COMPILER V8.05a   SERVOARM                                                             01/22/2015 19:46:16 PAGE 1   
+
+
+C51 COMPILER V8.05a, COMPILATION OF MODULE SERVOARM
+OBJECT MODULE PLACED IN servoarm.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.exe servoarm.c DB OE BR
+
+line level    source
+
+   1          #include "servoarm.h"
+   2          #include "Timer2.h"
+   3          unsigned int servo_pwm = 0;
+   4          /*
+   5          const unsigned char servo_max[3] = {162/2,200/2,190/2};
+   6          const unsigned char servo_mid[3] = {138/2,145/2,145/2};
+   7          const unsigned char servo_min[3] = {110/2,115/2,100/2};
+   8          */
+   9          
+  10          void servo_init(void)
+  11          {
+  12   1              servo_port_init();
+  13   1              Timer2_Init();
+  14   1              servo_stop();
+  15   1      }
+  16          
+  17          void servo_port_init(void)
+  18          {
+  19   1          unsigned char SFRPAGE_save = SFRPAGE; 
+  20   1              SFRPAGE = CONFIG_PAGE; 
+  21   1      
+  22   1              P1SKIP |= 0x80;
+  23   1          P1MDOUT |= 0x80;    //P1.7
+  24   1      
+  25   1      //      XBR1 |= 0x40;
+  26   1      
+  27   1          SFRPAGE = SFRPAGE_save; 
+  28   1      }
+  29          
+  30          
+  31          
+  32          void servo_turn_left()
+  33          {
+  34   1              servo_pwm = 144/2;
+  35   1      }
+  36          
+  37          void servo_turn_right()
+  38          {
+  39   1              servo_pwm = 152/2;
+  40   1      }
+  41          
+  42          void servo_stop()
+  43          {
+  44   1              servo_pwm = 148/2;
+  45   1      }
+  46          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     44    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2    ----
+   IDATA SIZE       =   ----    ----
+C51 COMPILER V8.05a   SERVOARM                                                             01/22/2015 19:46:16 PAGE 2   
+
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

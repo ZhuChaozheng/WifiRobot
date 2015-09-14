@@ -1,0 +1,55 @@
+C51 COMPILER V8.05a   MAIN                                                                 10/22/2014 16:12:59 PAGE 1   
+
+
+C51 COMPILER V8.05a, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.exe main.h DB OE BR
+
+line level    source
+
+   1          /***********************************************************
+   2          *  文件名   ：main.h
+   3          *  相关文件 ：无
+   4          *  文件功能 ：声明了在main.c中定义的几个函数.
+   5          *  作    者 : 杨  强
+   6          *  日    期 : 2007-12-14
+   7          *  版    本 : v1.0
+   8          *
+   9          ***********************************************************/
+  10          
+  11          #ifndef __MAIN_H__
+  12          #define __MAIN_H__
+  13          
+  14          #define  U16  unsigned int
+  15          
+  16          
+  17          unsigned char BubbleSort(unsigned int array[],unsigned char n);
+  18          void exchange(unsigned int *a,unsigned int *b);
+  19          void Watchdog_Init();
+  20          void clrwdt();
+  21          void SMBus_Init (void);
+  22          void Timer1_Init (void);
+  23          void SMBus_ISR (void);
+  24          
+  25          extern void DC_Motor(unsigned char motor_num,
+  26                        unsigned char direction, unsigned char motor_speed);
+  27          extern void PWM_Init(void);
+  28          
+  29          
+  30          
+  31          
+  32          #endif 
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

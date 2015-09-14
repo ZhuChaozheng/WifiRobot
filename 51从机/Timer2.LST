@@ -1,0 +1,85 @@
+C51 COMPILER V8.05a   TIMER2                                                               01/22/2015 19:46:12 PAGE 1   
+
+
+C51 COMPILER V8.05a, COMPILATION OF MODULE TIMER2
+OBJECT MODULE PLACED IN Timer2.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.exe Timer2.c DB OE BR
+
+line level    source
+
+   1          #include "Timer2.h"
+   2          #include "C8051F360.h"
+   3          extern unsigned int servo_pwm;
+   4          
+   5          
+   6          void Timer2_Init()
+   7          {
+   8   1              unsigned char SFRPAGE_save;
+   9   1              CKCON  |= 0x10;    //系统时钟
+  10   1      
+  11   1              SFRPAGE_save = SFRPAGE;
+  12   1              SFRPAGE = TMR2_PAGE;
+  13   1              
+  14   1      
+  15   1      #ifdef TIME_GAP_20US
+  16   1          TMR2CN  = 0x05;        //16位,允许中断
+  17   1              TMR2RLL = 0x15;    
+  18   1              TMR2RLH = 0xfe;       //20us
+  19   1      #else
+                      TMR2CN  = 0x29;    //低八位，允许中断
+                  TMR2RLL = 0x0a;       //10us
+              #endif
+  23   1              SFRPAGE = SFRPAGE_save; 
+  24   1      
+  25   1              IE |= 0x20;
+  26   1      
+  27   1      } 
+  28          
+  29          data unsigned int i=0, SERVO_PWM_C=0;
+  30          void Timer2_ISR() interrupt INTERRUPT_TIMER2
+  31          {
+  32   1        
+  33   1          
+  34   1          
+  35   1              //static unsigned char past;
+  36   1              TMR2CN &= 0x3f;
+  37   1              i++;
+  38   1      
+  39   1              if(i > SERVO_PWM_C)
+  40   1              {
+  41   2                  //servo_pin = 0;
+  42   2                      servo_pin = 0;
+  43   2                      SERVO_PWM_C = 1999;
+  44   2              }
+  45   1      
+  46   1      
+  47   1              if(i > 999)
+  48   1              {
+  49   2                  i = 0;
+  50   2                      servo_pin = 1;
+  51   2                      SERVO_PWM_C = servo_pwm;
+  52   2              }
+  53   1      
+  54   1      }
+  55          
+C51 COMPILER V8.05a   TIMER2                                                               01/22/2015 19:46:12 PAGE 2   
+
+  56          
+  57          
+  58          
+  59          
+  60          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     85    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
