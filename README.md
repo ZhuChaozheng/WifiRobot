@@ -12,6 +12,7 @@ this program is writing for my new project,now I want to share with everybody! i
     运动速度控制
 
 坦克机器人：
+
         尺寸：约45*21*17cm
         通信方式及距离：wifi（定向情况，大于100m）或4G（城市环境下，距离不限）
         控制方式：安卓或web
