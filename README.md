@@ -2,10 +2,10 @@
 this program is writing for my new project,now I want to share with everybody! if you have any good suggests,please contacts me ! my E-mail is 370045744@qq.com! Thank you for you cooperation!
 
 
-机械鱼：
-无线蓝牙控制
-尺寸：35*10*10cm
-续航》1小时
+机械鱼：\\
+无线蓝牙控制\\
+尺寸：35*10*10cm\\
+续航》1小时\\
 搭载加速度、陀螺仪传感器
 可在水中自由游动
 运动速度控制
